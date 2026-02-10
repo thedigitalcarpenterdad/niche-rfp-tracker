@@ -1,0 +1,125 @@
+# =================================
+# NICHE RFP TRACKER - GITIGNORE
+# =================================
+
+# Environment and secrets
+.env
+.env.local
+.env.production
+.env.staging
+*.env
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime files
+*.pid
+*.seed
+*.pid.lock
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Uploaded files and backups
+uploads/
+backups/
+*.backup
+*.bak
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Build outputs
+build/
+dist/
+.next/
+out/
+
+# Coverage and test outputs
+coverage/
+*.lcov
+.nyc_output
+
+# Temporary directories
+tmp/
+temp/
+.tmp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# SSL certificates
+ssl/
+*.pem
+*.key
+*.crt
+*.csr
+
+# Docker
+.dockerignore
+
+# Local development
+.local/
+.vscode/
+.history/
+
+# Email attachments (processed)
+email-attachments/
+
+# System service files (generated)
+*.service
+*.plist
+
+# Sensitive configuration
+config/secrets.json
+config/production.json
+
+# Monitoring and analytics
+.sentryclirc
+
+# Package manager lock files (keep package-lock.json for Node.js)
+# yarn.lock
+# pnpm-lock.yaml
+
+# Testing
+test-results/
+playwright-report/
+test-report/
