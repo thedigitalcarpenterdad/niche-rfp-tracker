@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niche RFP Tracker - Live Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2E86AB;
+            --secondary-blue: #A23B72;
+            --accent-gold: #F18F01;
+            --dark-slate: #1A2332;
+            --light-gray: #F8FAFB;
+            --white: #FFFFFF;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --urgent: #DC2626;
+            --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            min-height: 100vh;
+            padding: 24px;
+            color: var(--dark-slate);
+            line-height: 1.6;
+        }
+
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 50vh;
+            color: white;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: var(--shadow-heavy);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--dark-slate) 0%, #2A3441 100%);
+            color: var(--white);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-main h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--white) 0%, var(--accent-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .last-updated {
+            text-align: right;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 16px 24px;
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .last-updated-label {
+            font-size: 0.875rem;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .last-updated-time {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .summary-section {
+            background: var(--light-gray);
+            padding: 40px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+        }
+
+        .summary-card {
+            background: var(--white);
+            padding: 32px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border-left: 4px solid;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
+            pointer-events: none;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .summary-card.overdue { border-left-color: var(--error); }
+        .summary-card.urgent { border-left-color: var(--urgent); }
+        .summary-card.warning { border-left-color: var(--warning); }
+        .summary-card.normal { border-left-color: var(--success); }
+        .summary-card.total { border-left-color: var(--primary-blue); }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .card-icon.overdue { background: linear-gradient(135deg, var(--error), #F87171); color: white; }
+        .card-icon.urgent { background: linear-gradient(135deg, var(--urgent), #F87171); color: white; }
+        .card-icon.warning { background: linear-gradient(135deg, var(--warning), #FBBF24); color: white; }
+        .card-icon.normal { background: linear-gradient(135deg, var(--success), #34D399); color: white; }
+        .card-icon.total { background: linear-gradient(135deg, var(--primary-blue), #60A5FA); color: white; }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark-slate);
+        }
+
+        .card-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--dark-slate);
+            margin-bottom: 8px;
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+
+        .rfp-section {
+            padding: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-slate);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rfp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 24px;
+        }
+
+        .rfp-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+            border-left: 6px solid;
+            position: relative;
+            animation: slideIn 0.5s ease;
+        }
+
+        .rfp-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .rfp-card.overdue { border-left-color: var(--error); }
+        .rfp-card.urgent { border-left-color: var(--urgent); }
+        .rfp-card.warning { border-left-color: var(--warning); }
+        .rfp-card.normal { border-left-color: var(--success); }
+        .rfp-card.tbd { border-left-color: #9CA3AF; }
+
+        .rfp-header {
+            padding: 24px;
+            background: linear-gradient(135deg, #F9FAFB 0%, var(--light-gray) 100%);
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .rfp-title-section { flex: 1; }
+
+        .rfp-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark-slate);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .rfp-id {
+            font-size: 0.875rem;
+            color: #6B7280;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .urgency-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .urgency-badge.overdue { background: var(--error); color: white; }
+        .urgency-badge.urgent { background: var(--urgent); color: white; }
+        .urgency-badge.warning { background: var(--warning); color: white; }
+        .urgency-badge.normal { background: var(--success); color: white; }
+        .urgency-badge.tbd { background: #9CA3AF; color: white; }
+
+        .rfp-body { padding: 24px; }
+
+        .rfp-detail {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .rfp-detail-icon {
+            width: 20px; height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+            color: var(--primary-blue);
+        }
+
+        .rfp-detail-content { flex: 1; }
+
+        .rfp-detail-label {
+            font-weight: 600;
+            color: var(--dark-slate);
+            font-size: 0.875rem;
+            margin-bottom: 4px;
+        }
+
+        .rfp-detail-value {
+            color: #6B7280;
+            font-size: 0.875rem;
+        }
+
+        .countdown {
+            background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin: 16px 0;
+            border: 2px solid;
+        }
+
+        .countdown.overdue { 
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%); 
+            color: var(--error); 
+            border-color: var(--error);
+            animation: pulse-red 2s infinite;
+        }
+        .countdown.urgent { 
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%); 
+            color: var(--urgent); 
+            border-color: var(--urgent);
+            animation: pulse-red 3s infinite;
+        }
+        .countdown.warning { 
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); 
+            color: var(--warning); 
+            border-color: var(--warning);
+        }
+        .countdown.normal { 
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); 
+            color: var(--success); 
+            border-color: var(--success);
+        }
+        .countdown.tbd { 
+            background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); 
+            color: #9CA3AF; 
+            border-color: #9CA3AF;
+        }
+
+        .walkthrough {
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--primary-blue);
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: 1px solid #93C5FD;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .footer {
+            background: var(--light-gray);
+            padding: 32px 40px;
+            text-align: center;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .footer-info {
+            font-size: 0.875rem;
+            color: #6B7280;
+            margin-bottom: 24px;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-state {
+            padding: 40px;
+            text-align: center;
+            color: var(--error);
+        }
+
+        .retry-btn {
+            padding: 10px 20px;
+            margin-top: 20px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .retry-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <h2>Loading Your Real RFP Data...</h2>
+        <p>Connecting to API server...</p>
+    </div>
+
+    <div id="dashboard" class="dashboard-container" style="display: none;">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="header-main">
+                    <h1><i class="fas fa-hammer"></i> Niche RFP Hub</h1>
+                    <div class="header-subtitle">Live Professional RFP Tracking & Management</div>
+                </div>
+                <div class="last-updated">
+                    <div class="last-updated-label">Last Updated</div>
+                    <div class="last-updated-time" id="last-updated">Loading...</div>
+                </div>
+            </div>
+        </header>
+
+        <section class="summary-section">
+            <div class="summary-grid">
+                <div class="summary-card overdue">
+                    <div class="card-header">
+                        <div class="card-icon overdue">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="card-title">Overdue</div>
+                    </div>
+                    <div class="card-value" id="overdue-count">0</div>
+                    <div class="card-subtitle">Immediate action required</div>
+                </div>
+
+                <div class="summary-card urgent">
+                    <div class="card-header">
+                        <div class="card-icon urgent">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="card-title">Urgent</div>
+                    </div>
+                    <div class="card-value" id="urgent-count">0</div>
+                    <div class="card-subtitle">Due within 7 days</div>
+                </div>
+
+                <div class="summary-card warning">
+                    <div class="card-header">
+                        <div class="card-icon warning">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="card-title">Warning</div>
+                    </div>
+                    <div class="card-value" id="warning-count">0</div>
+                    <div class="card-subtitle">Due within 14 days</div>
+                </div>
+
+                <div class="summary-card normal">
+                    <div class="card-header">
+                        <div class="card-icon normal">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="card-title">Normal</div>
+                    </div>
+                    <div class="card-value" id="normal-count">0</div>
+                    <div class="card-subtitle">Ample time remaining</div>
+                </div>
+
+                <div class="summary-card total">
+                    <div class="card-header">
+                        <div class="card-icon total">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="card-title">Total Active</div>
+                    </div>
+                    <div class="card-value" id="total-count">0</div>
+                    <div class="card-subtitle">RFPs being tracked</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="rfp-section">
+            <div class="section-title">
+                <i class="fas fa-file-contract"></i>
+                Your Real RFP Opportunities
+            </div>
+            <div class="rfp-grid" id="rfp-grid">
+                <!-- RFP cards will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <footer class="footer">
+            <div class="footer-info">
+                <i class="fas fa-sync-alt"></i> Real data from your email accounts • 
+                <i class="fas fa-shield-alt"></i> Professional tracking for Niche Waterproofing
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001/api';
+        let dashboardData = null;
+
+        // Load dashboard data from API
+        async function loadDashboardData() {
+            try {
+                console.log('🔄 Loading dashboard data from API...');
+                const response = await fetch(`${API_BASE_URL}/dashboard`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ Successfully loaded RFP data:', data);
+                
+                dashboardData = data;
+                renderDashboard(data);
+                
+                // Hide loading, show dashboard
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                
+            } catch (error) {
+                console.error('❌ Failed to load dashboard data:', error);
+                showError(error);
+            }
+        }
+
+        function showError(error) {
+            document.getElementById('loading').innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                    <h2>⚠️ Connection Error</h2>
+                    <p>Failed to load RFP data from API</p>
+                    <p style="font-size: 14px; color: #666; margin: 20px 0;">Error: ${error.message}</p>
+                    <button onclick="loadDashboardData()" class="retry-btn">
+                        <i class="fas fa-sync-alt"></i> Retry Connection
+                    </button>
+                    <p style="font-size: 12px; color: #666; margin-top: 20px;">
+                        Make sure the API server is running on port 3001<br>
+                        Run: <code>cd ~/niche-rfp-tracker && node backend/app.js</code>
+                    </p>
+                </div>
+            `;
+        }
+
+        function renderDashboard(data) {
+            updateSummaryCards(data.summary);
+            updateRFPGrid(data);
+            updateTimestamp(data.timestamp);
+        }
+
+        function updateSummaryCards(summary) {
+            document.getElementById('overdue-count').textContent = summary.urgency?.overdue || 0;
+            document.getElementById('urgent-count').textContent = summary.urgency?.urgent || 0;
+            document.getElementById('warning-count').textContent = summary.urgency?.warning || 0;
+            document.getElementById('normal-count').textContent = summary.urgency?.normal || 0;
+            document.getElementById('total-count').textContent = summary.total || 0;
+        }
+
+        function updateRFPGrid(data) {
+            // Combine upcoming deadlines and recent RFPs, prioritize by urgency
+            const allRFPs = [...(data.upcomingDeadlines || []), ...(data.recentRFPs || [])];
+            const uniqueRFPs = allRFPs.filter((rfp, index, self) => 
+                index === self.findIndex(r => r.id === rfp.id)
+            );
+
+            // Sort by urgency priority
+            const urgencyOrder = { 'overdue': 0, 'urgent': 1, 'warning': 2, 'normal': 3, 'tbd': 4 };
+            uniqueRFPs.sort((a, b) => {
+                const aOrder = urgencyOrder[a.urgency_level] || 4;
+                const bOrder = urgencyOrder[b.urgency_level] || 4;
+                if (aOrder !== bOrder) return aOrder - bOrder;
+                return new Date(a.deadline) - new Date(b.deadline);
+            });
+
+            const grid = document.getElementById('rfp-grid');
+            grid.innerHTML = '';
+
+            if (uniqueRFPs.length === 0) {
+                grid.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #6B7280; grid-column: 1 / -1;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <h3>No RFPs Found</h3>
+                        <p>No RFP data was loaded from the API.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            uniqueRFPs.forEach((rfp, index) => {
+                const card = createRFPCard(rfp, index);
+                grid.appendChild(card);
+            });
+        }
+
+        function createRFPCard(rfp, index) {
+            const urgencyConfig = getUrgencyConfig(rfp.urgency_level);
+            const daysRemaining = calculateDaysRemaining(rfp.deadline);
+            const formattedDeadline = formatDate(rfp.deadline);
+
+            const card = document.createElement('div');
+            card.className = `rfp-card ${urgencyConfig.class}`;
+            card.setAttribute('data-rfp-id', rfp.id);
+            card.style.animationDelay = `${index * 0.1}s`;
+
+            card.innerHTML = `
+                <div class="rfp-header">
+                    <div class="rfp-title-section">
+                        <div class="rfp-title">${escapeHtml(rfp.name)}</div>
+                        <div class="rfp-id">ID: ${rfp.id} | Status: ${rfp.status.toUpperCase()}</div>
+                    </div>
+                    <div class="urgency-badge ${urgencyConfig.class}">
+                        ${urgencyConfig.icon} ${urgencyConfig.label}
+                    </div>
+                </div>
+                
+                <div class="rfp-body">
+                    <div class="rfp-detail">
+                        <div class="rfp-detail-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="rfp-detail-content">
+                            <div class="rfp-detail-label">Submission Deadline</div>
+                            <div class="rfp-detail-value">${formattedDeadline}</div>
+                        </div>
+                    </div>
+
+                    <div class="countdown ${urgencyConfig.class}">
+                        <i class="fas fa-hourglass-half"></i> ${daysRemaining}
+                    </div>
+
+                    ${rfp.walkthrough_date ? `
+                        <div class="walkthrough">
+                            <i class="fas fa-walking"></i>
+                            Walk-through: ${formatDate(rfp.walkthrough_date)}
+                        </div>
+                    ` : ''}
+
+                    <div class="rfp-detail">
+                        <div class="rfp-detail-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="rfp-detail-content">
+                            <div class="rfp-detail-label">Contact</div>
+                            <div class="rfp-detail-value">${escapeHtml(rfp.contact || 'Not specified')}</div>
+                        </div>
+                    </div>
+
+                    <div class="rfp-detail">
+                        <div class="rfp-detail-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="rfp-detail-content">
+                            <div class="rfp-detail-label">Organization</div>
+                            <div class="rfp-detail-value">${escapeHtml(rfp.organization || 'Not specified')}</div>
+                        </div>
+                    </div>
+
+                    <div class="rfp-detail">
+                        <div class="rfp-detail-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="rfp-detail-content">
+                            <div class="rfp-detail-label">Description</div>
+                            <div class="rfp-detail-value">${escapeHtml(truncateText(rfp.description || 'No description available', 150))}</div>
+                        </div>
+                    </div>
+
+                    ${rfp.notes ? `
+                        <div class="rfp-detail">
+                            <div class="rfp-detail-icon">
+                                <i class="fas fa-sticky-note"></i>
+                            </div>
+                            <div class="rfp-detail-content">
+                                <div class="rfp-detail-label">Notes</div>
+                                <div class="rfp-detail-value">${escapeHtml(truncateText(rfp.notes, 200))}</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            return card;
+        }
+
+        function getUrgencyConfig(urgencyLevel) {
+            const configs = {
+                'overdue': { icon: '🚨', class: 'overdue', label: 'OVERDUE' },
+                'urgent': { icon: '⚠️', class: 'urgent', label: 'URGENT' },
+                'warning': { icon: '⚡', class: 'warning', label: 'WARNING' },
+                'normal': { icon: '✅', class: 'normal', label: 'NORMAL' },
+                'tbd': { icon: '❓', class: 'tbd', label: 'TBD' }
+            };
+            return configs[urgencyLevel] || configs.normal;
+        }
+
+        function calculateDaysRemaining(deadline) {
+            const now = new Date();
+            const deadlineDate = new Date(deadline);
+            const diffTime = deadlineDate - now;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) {
+                return `${Math.abs(diffDays)} days overdue`;
+            } else if (diffDays === 0) {
+                return 'Due today';
+            } else if (diffDays === 1) {
+                return '1 day remaining';
+            } else {
+                return `${diffDays} days remaining`;
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Not specified';
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        function updateTimestamp(timestamp) {
+            const element = document.getElementById('last-updated');
+            if (element && timestamp) {
+                const date = new Date(timestamp);
+                element.textContent = date.toLocaleString();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (dashboardData) {
+                loadDashboardData();
+            }
+        }, 30000);
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+    </script>
+</body>
+</html>
