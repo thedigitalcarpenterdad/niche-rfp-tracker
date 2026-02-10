@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { Op } = require('sequelize');
 const RFP = require('../models/RFP');
 
 // GET /api/dashboard - Get dashboard summary data

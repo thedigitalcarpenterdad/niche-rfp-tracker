@@ -1,8 +1,26 @@
 const express = require('express');
 const router = express.Router();
+const { Op } = require('sequelize');
 const RFP = require('../models/RFP');
-const { validateRFP } = require('../services/validation');
-const { sendAlert } = require('../services/alerts');
+
+// Basic validation function (we'll implement the service later)
+const validateRFP = (data, isUpdate = false) => {
+  const errors = [];
+  
+  if (!isUpdate && !data.name) errors.push('Name is required');
+  if (!isUpdate && !data.deadline) errors.push('Deadline is required');
+  if (data.deadline && new Date(data.deadline) < new Date()) errors.push('Deadline must be in the future');
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+// Basic alert function (we'll implement the service later)
+const sendAlert = async (type, rfp) => {
+  console.log(`Alert: ${type} for RFP: ${rfp.name}`);
+};
 
 // GET /api/rfps - Get all RFPs with filtering and pagination
 router.get('/', async (req, res) => {
