@@ -1,0 +1,20 @@
+TOTAL RFPS: 12
+
+BY URGENCY:
+overdue|5
+urgent|2
+warning|3
+normal|2
+
+BY STATUS:
+in_progress|3
+lost|5
+pending|3
+submitted|1
+
+UPCOMING DEADLINES:
+Gladys Hampton Affordable Preservation LLC - Facade Local Law 11 Repairs|2026-02-10 23:30:00|urgent|C+C Apartment Management, LLC
+NYCHA Local Law Inspection Services - RFP #515836|2026-02-14 17:00:00|warning|O&S Associates / NYCHA
+1070 Anderson Ave - Roof Repairs & Masonry Repairs|2026-02-18 12:00:00|urgent|New Destiny Housing
+50 West 36th Street Restoration Work|2026-02-20 17:00:00|warning|The Letap Group
+1760 2nd Avenue - CTA Project|2026-02-25 17:00:00|warning|CTA Architects
