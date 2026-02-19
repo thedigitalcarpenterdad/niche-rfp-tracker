@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attorney Comparison: Daniel Niamehr vs Brandon Marvisi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a1a; color: #e0e0e0; }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a3e 0%, #0d0d2b 100%);
+            text-align: center;
+            padding: 50px 20px 30px;
+            border-bottom: 2px solid #2a2a5a;
+        }
+        .header h1 { font-size: 2.2em; color: #fff; margin-bottom: 8px; }
+        .header p { color: #8888aa; font-size: 1.1em; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 80px 1fr;
+            gap: 0;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: #12122a;
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid #2a2a5a;
+        }
+        .card.daniel { border-top: 4px solid #4a9eff; }
+        .card.brandon { border-top: 4px solid #ff6b4a; }
+        
+        .vs-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .vs-badge {
+            background: linear-gradient(135deg, #4a9eff, #ff6b4a);
+            color: #fff;
+            font-weight: 900;
+            font-size: 1.2em;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .attorney-name {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .daniel .attorney-name { color: #4a9eff; }
+        .brandon .attorney-name { color: #ff6b4a; }
+        
+        .attorney-title { color: #8888aa; font-size: 0.95em; margin-bottom: 20px; }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #1a1a3a;
+        }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-label { color: #8888aa; font-size: 0.9em; }
+        .stat-value { font-weight: 600; font-size: 1em; }
+        
+        .highlight-box {
+            background: #1a1a3a;
+            border-radius: 10px;
+            padding: 16px;
+            margin: 15px 0;
+        }
+        .highlight-box h4 { font-size: 0.85em; color: #8888aa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin: 3px 4px 3px 0;
+        }
+        .daniel .tag { background: rgba(74,158,255,0.15); color: #4a9eff; }
+        .brandon .tag { background: rgba(255,107,74,0.15); color: #ff6b4a; }
+        
+        .verdict-amount {
+            font-size: 1.8em;
+            font-weight: 800;
+            margin: 5px 0;
+        }
+        .daniel .verdict-amount { color: #4a9eff; }
+        .brandon .verdict-amount { color: #ff6b4a; }
+        
+        .section-title {
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #fff;
+            margin: 40px 0 20px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #12122a;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2a2a5a;
+        }
+        .comparison-table th {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8888aa;
+            background: #1a1a3a;
+        }
+        .comparison-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid #1a1a3a;
+            font-size: 0.95em;
+        }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .comparison-table .category { color: #8888aa; font-weight: 600; background: #0f0f25; }
+        .winner { position: relative; }
+        .winner::after {
+            content: '✓';
+            color: #4aff8a;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .bottom-line {
+            background: linear-gradient(135deg, #1a1a3e, #12122a);
+            border: 1px solid #2a2a5a;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        .bottom-line h2 { color: #fff; margin-bottom: 15px; font-size: 1.3em; }
+        .bottom-line p { color: #b0b0cc; line-height: 1.7; margin-bottom: 12px; }
+        .bottom-line strong { color: #fff; }
+        
+        .score-bar {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+        }
+        .score-bar .label { width: 160px; font-size: 0.85em; color: #8888aa; }
+        .score-bar .bar-bg {
+            flex: 1;
+            height: 8px;
+            background: #1a1a3a;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        .score-bar .bar-fill { height: 100%; border-radius: 4px; }
+        .score-bar .score { font-size: 0.85em; width: 30px; text-align: right; }
+        
+        .disclaimer {
+            text-align: center;
+            color: #555;
+            font-size: 0.8em;
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid { grid-template-columns: 1fr; gap: 15px; }
+            .vs-divider { padding: 10px 0; }
+            .header h1 { font-size: 1.5em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚖️ Attorney Comparison</h1>
+        <p>Daniel Niamehr vs Brandon Marvisi — Side by Side</p>
+    </div>
+
+    <div class="container">
+        <div class="comparison-grid">
+            <!-- Daniel Niamehr -->
+            <div class="card daniel">
+                <div class="attorney-name">Daniel J. Niamehr, Esq.</div>
+                <div class="attorney-title">Founder & Managing Partner — Niamehr Law Firm, NYC</div>
+                
+                <div class="stat-row">
+                    <span class="stat-label">Location</span>
+                    <span class="stat-value">New York, NY</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Law School</span>
+                    <span class="stat-value">George Washington University Law School ('15)</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Undergrad</span>
+                    <span class="stat-value">UMass Amherst (Cum Laude)</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Bar Admission</span>
+                    <span class="stat-value">New York (2016)</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Experience</span>
+                    <span class="stat-value">~10 years</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Firm Role</span>
+                    <span class="stat-value">Founder / Own Firm</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Peer Rating</span>
+                    <span class="stat-value">Martindale "Distinguished"</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Recognition</span>
+                    <span class="stat-value">Super Lawyers (Top Rated)</span>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Notable Recoveries</h4>
+                    <div class="verdict-amount">$4,250,000</div>
+                    <div style="color:#8888aa; font-size:0.85em; margin-bottom: 8px;">Car Accident — Largest Listed</div>
+                    <div style="color:#ccc;">$3,045,000 — Premises Negligence</div>
+                    <div style="color:#ccc;">$1,500,000 — Motorcycle Accident</div>
+                    <div style="color:#ccc;">$1,300,000 — Car Accident</div>
+                    <div style="color:#ccc;">$1,000,000 — Premises Negligence</div>
+                    <div style="color:#ccc;">$1,000,000 — Car Accident</div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Practice Areas</h4>
+                    <span class="tag">Personal Injury</span>
+                    <span class="tag">Car Accidents</span>
+                    <span class="tag">Premises Liability</span>
+                    <span class="tag">Medical Malpractice</span>
+                    <span class="tag">Wrongful Death</span>
+                    <span class="tag">Slip & Fall</span>
+                    <span class="tag">Burn Injuries</span>
+                    <span class="tag">Product Defects</span>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Federal Courts</h4>
+                    <span class="tag">SDNY</span>
+                    <span class="tag">EDNY</span>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Positioning</h4>
+                    <p style="color:#b0b0cc; font-size:0.9em; line-height:1.6;">Plaintiff-side PI attorney. Runs his own firm. "Tell Daniel" branding — aggressive personal injury focus. No fee unless you win model. Trial-ready approach to maximize settlements. NYC-centric practice.</p>
+                </div>
+            </div>
+
+            <!-- VS -->
+            <div class="vs-divider">
+                <div class="vs-badge">VS</div>
+            </div>
+
+            <!-- Brandon Marvisi -->
+            <div class="card brandon">
+                <div class="attorney-name">Brandon Marvisi, Esq.</div>
+                <div class="attorney-title">Trial Attorney — Arash Law (formerly Hunton Andrews Kurth)</div>
+                
+                <div class="stat-row">
+                    <span class="stat-label">Location</span>
+                    <span class="stat-value">Los Angeles, CA</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Law School</span>
+                    <span class="stat-value">Duke University School of Law</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Undergrad</span>
+                    <span class="stat-value">University of Michigan (Distinction)</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Bar Admission</span>
+                    <span class="stat-value">California</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Experience</span>
+                    <span class="stat-value">~5-7 years</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Firm Role</span>
+                    <span class="stat-value">Trial Attorney (Associate level)</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Peer Rating</span>
+                    <span class="stat-value">Not yet rated</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Recognition</span>
+                    <span class="stat-value">—</span>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Notable Cases</h4>
+                    <div class="verdict-amount">$16,000,000</div>
+                    <div style="color:#8888aa; font-size:0.85em; margin-bottom: 8px;">Jury Verdict — Spotlight Ticket Mgmt vs StubHub (Hunton team)</div>
+                    <div style="color:#ccc; font-size: 0.85em;">Note: This was as part of the Hunton Andrews Kurth national trial team — not a solo or lead-counsel win. Defense-side work.</div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Practice Areas</h4>
+                    <span class="tag">Personal Injury (current)</span>
+                    <span class="tag">Product Liability</span>
+                    <span class="tag">Consumer Class Actions</span>
+                    <span class="tag">Data Breach Litigation</span>
+                    <span class="tag">Class Action Defense</span>
+                    <span class="tag">Wage & Hour Litigation</span>
+                    <span class="tag">Complex Civil Litigation</span>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Career Path</h4>
+                    <p style="color:#b0b0cc; font-size:0.9em; line-height:1.6;">
+                        <strong style="color:#ff6b4a;">Hunton Andrews Kurth</strong> (BigLaw, defense-side) → <strong style="color:#ff6b4a;">Arash Law</strong> (plaintiff PI firm). Switched from defending Fortune 500 companies to representing injured individuals. Uses his defense background to anticipate opposing strategies.</p>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>Positioning</h4>
+                    <p style="color:#b0b0cc; font-size:0.9em; line-height:1.6;">Former BigLaw defense attorney who switched to plaintiff side. Duke Law pedigree. Now at a major California PI firm (Arash Law). Brings corporate defense perspective to plaintiff cases. LA-based practice.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Head to Head Comparison Table -->
+        <h2 class="section-title">📊 Head-to-Head Breakdown</h2>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th style="color:#4a9eff;">Daniel Niamehr</th>
+                    <th style="color:#ff6b4a;">Brandon Marvisi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="category">Law School Prestige</td>
+                    <td>GW Law (T50)</td>
+                    <td class="winner">Duke Law (T15)</td>
+                </tr>
+                <tr>
+                    <td class="category">Years of Experience</td>
+                    <td class="winner">~10 years</td>
+                    <td>~5-7 years</td>
+                </tr>
+                <tr>
+                    <td class="category">Entrepreneurship</td>
+                    <td class="winner">Founded own firm</td>
+                    <td>Associate at existing firm</td>
+                </tr>
+                <tr>
+                    <td class="category">PI Track Record</td>
+                    <td class="winner">Millions recovered (documented)</td>
+                    <td>Recently transitioned to PI</td>
+                </tr>
+                <tr>
+                    <td class="category">BigLaw Experience</td>
+                    <td>None listed</td>
+                    <td class="winner">Hunton Andrews Kurth (AmLaw 100)</td>
+                </tr>
+                <tr>
+                    <td class="category">Peer Recognition</td>
+                    <td class="winner">Super Lawyers, Martindale Distinguished</td>
+                    <td>None yet</td>
+                </tr>
+                <tr>
+                    <td class="category">Trial Experience</td>
+                    <td class="winner">Trial-ready approach, all phases of litigation</td>
+                    <td>Part of $16M jury verdict team</td>
+                </tr>
+                <tr>
+                    <td class="category">Defense Insight</td>
+                    <td>Plaintiff-only career</td>
+                    <td class="winner">Former Fortune 500 defense attorney</td>
+                </tr>
+                <tr>
+                    <td class="category">Jurisdiction</td>
+                    <td>New York (SDNY, EDNY)</td>
+                    <td>California</td>
+                </tr>
+                <tr>
+                    <td class="category">Firm Size</td>
+                    <td>Boutique (own firm)</td>
+                    <td>Large PI firm (Arash Law)</td>
+                </tr>
+                <tr>
+                    <td class="category">Brand/Marketing</td>
+                    <td class="winner">"Tell Daniel" — strong personal brand</td>
+                    <td>Part of Arash Law brand</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Scoring -->
+        <h2 class="section-title">🏆 Overall Scoring</h2>
+        <div class="card" style="border-top: 4px solid #4aff8a;">
+            <div class="score-bar">
+                <span class="label">Education</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:70%; background:#4a9eff;"></div></div>
+                <span class="score" style="color:#4a9eff">7</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:90%; background:#ff6b4a;"></div></div>
+                <span class="score" style="color:#ff6b4a">9</span>
+            </div>
+            <div class="score-bar">
+                <span class="label">Experience</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:85%; background:#4a9eff;"></div></div>
+                <span class="score" style="color:#4a9eff">8.5</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:60%; background:#ff6b4a;"></div></div>
+                <span class="score" style="color:#ff6b4a">6</span>
+            </div>
+            <div class="score-bar">
+                <span class="label">PI Track Record</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:90%; background:#4a9eff;"></div></div>
+                <span class="score" style="color:#4a9eff">9</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:40%; background:#ff6b4a;"></div></div>
+                <span class="score" style="color:#ff6b4a">4</span>
+            </div>
+            <div class="score-bar">
+                <span class="label">Peer Recognition</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:85%; background:#4a9eff;"></div></div>
+                <span class="score" style="color:#4a9eff">8.5</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:20%; background:#ff6b4a;"></div></div>
+                <span class="score" style="color:#ff6b4a">2</span>
+            </div>
+            <div class="score-bar">
+                <span class="label">Litigation Versatility</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:65%; background:#4a9eff;"></div></div>
+                <span class="score" style="color:#4a9eff">6.5</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:85%; background:#ff6b4a;"></div></div>
+                <span class="score" style="color:#ff6b4a">8.5</span>
+            </div>
+            <div class="score-bar">
+                <span class="label">Brand / Reputation</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:80%; background:#4a9eff;"></div></div>
+                <span class="score" style="color:#4a9eff">8</span>
+                <div class="bar-bg"><div class="bar-fill" style="width:50%; background:#ff6b4a;"></div></div>
+                <span class="score" style="color:#ff6b4a">5</span>
+            </div>
+        </div>
+
+        <!-- Bottom Line -->
+        <div class="bottom-line">
+            <h2>🔎 The Bottom Line</h2>
+            <p><strong>Daniel Niamehr</strong> is the more established personal injury attorney with a proven track record of multi-million dollar recoveries in New York. He runs his own firm, has Super Lawyers recognition, a Martindale "Distinguished" peer rating, and a strong personal brand. If you need a PI lawyer in NYC right now, he has the documented results.</p>
+            
+            <p><strong>Brandon Marvisi</strong> has the more prestigious educational pedigree (Duke Law, Michigan undergrad) and brings a unique BigLaw defense background from Hunton Andrews Kurth. He recently transitioned to plaintiff-side PI work at Arash Law in LA. His defense experience gives him insight into how the other side thinks, but he's still building his plaintiff-side track record.</p>
+            
+            <p><strong>For a personal injury case in New York:</strong> Niamehr has the clear edge — home turf, proven results, peer-recognized.</p>
+            <p><strong>For complex litigation or a California case:</strong> Marvisi's BigLaw training and broader litigation background could be an advantage.</p>
+            <p><strong>Long-term potential:</strong> Marvisi's Duke pedigree + defense-to-plaintiff career arc is compelling, but Niamehr is ahead on results right now.</p>
+        </div>
+
+        <div class="disclaimer">
+            <p>Comparison based on publicly available information as of February 2026.<br>
+            Sources: Avvo, Super Lawyers, Martindale-Hubbell, Justia, LinkedIn, firm websites, National Law Review.<br>
+            This is not legal advice. Consult directly with attorneys for case-specific guidance.</p>
+        </div>
+    </div>
+</body>
+</html>
